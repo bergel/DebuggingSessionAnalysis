@@ -1,6 +1,6 @@
 # DebuggingSessionAnalysis
 
-Starting from a new Pharo 11 image, you can install all the necessary with:
+Starting from a new Pharo 11 image, you can install all the necessary with first the requirements:
 
 ```
 Metacello new
@@ -13,10 +13,14 @@ Metacello new
     baseline: 'OCDbgAnalysis';
     repository: 'github://Pharo-XP-Tools/OCDbgAnalysis:main';
     load.
+```
 
+And then the visualization tool itself:
+
+```
 Metacello new
     baseline: 'DebuggingSessionAnalysis';
-    repository: 'github://bergel/DebuggingSessionAnalysis';
+    repository: 'github://bergel/DebuggingSessionAnalysis:main';
     load.
 ```
 
