@@ -7,6 +7,20 @@ Class {
 	#category : #DebuggingSessionAnalysis
 }
 
+{ #category : #'public - inspector' }
+DSA >> inspectorCanvas [
+	<inspectorPresentationOrder: 90 title: 'All events'>
+	^ SpRoassal3InspectorPresenter new
+		canvas: (self visualize: events);
+		yourself
+]
+
+{ #category : #'public - inspector' }
+DSA >> inspectorCanvasContext: aContext [
+
+	aContext withoutEvaluator
+]
+
 { #category : #private }
 DSA >> produceLineLabelFrom: aClass [
 	| n |
@@ -66,7 +80,10 @@ DSA >> visualize: someEvents [
 
 { #category : #public }
 DSA >> visualizeFromFileName: aFilename [
-	| es |
-	es := OCDbgExampleCode loadDataFromPath: aFilename.
-	^ self visualize: es
+	
+	"es := OCDbgExampleCode loadDataFromPath: aFilename."
+	self assert: [ aFilename isString ].
+	self assert: [ aFilename endsWith: '.ston' ].
+	events := STON fromString: aFilename asFileReference readStream contents.
+	^ self visualize: events
 ]
