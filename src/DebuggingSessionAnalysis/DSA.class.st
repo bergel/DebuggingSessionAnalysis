@@ -2,14 +2,36 @@ Class {
 	#name : #DSA,
 	#superclass : #Object,
 	#instVars : [
-		'events'
+		'events',
+		'windows',
+		'groups',
+		'w',
+		'offset'
 	],
 	#category : #DebuggingSessionAnalysis
 }
 
+{ #category : #public }
+DSA >> fromFileName: aFilename [
+	"Public method. Entry point of the Visualization Framework."
+	
+	"es := OCDbgExampleCode loadDataFromPath: aFilename."
+	self assert: [ aFilename isString ].
+	self assert: [ aFilename endsWith: '.ston' ].
+	events := STON fromString: aFilename asFileReference readStream contents.
+	self populateWindows.
+	^ self
+]
+
+{ #category : #initialization }
+DSA >> initialize [
+	super initialize.
+	offset := Duration days: 0 hours: 0 minutes: 0 seconds: 0
+]
+
 { #category : #'public - inspector' }
 DSA >> inspectorCanvas [
-	<inspectorPresentationOrder: 90 title: 'All events'>
+	<inspectorPresentationOrder: 50 title: 'Timeline'>
 	^ SpRoassal3InspectorPresenter new
 		canvas: (self visualize: events);
 		yourself
@@ -21,69 +43,89 @@ DSA >> inspectorCanvasContext: aContext [
 	aContext withoutEvaluator
 ]
 
-{ #category : #private }
-DSA >> produceLineLabelFrom: aClass [
-	| n |
-	n := aClass name.
-	^ n copyFrom: 3 to: n size - 'Record' size
+{ #category : #'public - inspector' }
+DSA >> inspectorWindow [
+	<inspectorPresentationOrder: 90 title: 'All windows'>
+	^ SpListPresenter new
+		items: self windows;
+		yourself
+]
+
+{ #category : #'public - inspector' }
+DSA >> inspectorWindowTimeline [
+	<inspectorPresentationOrder: 90 title: 'Window timeline'>
+	^ SpRoassal3InspectorPresenter new
+		canvas: self visualizeWindowTimelines;
+		yourself
 ]
 
 { #category : #private }
-DSA >> render: cls index: index on: canvas color: aColor [
-	| relevantEvents allShapes line lbl verticalGap |
-	verticalGap := 15.
-	relevantEvents := events select: [ :e | e isKindOf: cls ].
-	allShapes := RSCircle models: relevantEvents. 
-	allShapes color: aColor.
-	allShapes @ RSPopup.
-	canvas addAll: allShapes.
+DSA >> populateWindows [
+	windows := OrderedCollection new.
+	groups := (events groupedBy: #windowId) associations.
+	groups do: [ :assoc |
+		w := DSAWindow new.
+		w windowId: assoc key.
+		w events: assoc value.
+		windows add: w ]
 	
-	RSNormalizer position
-		to: 500 @ 500;
-		shapes: allShapes;
-		normalize: [ :event | (event dateTime asSeconds) @ 0 ].
-		
-	allShapes do: [ :s |
-		s translateBy: 0 @ index * verticalGap ].
-	
-	line := RSLine new from: 0@ (index * verticalGap); to: 500@ (index * verticalGap).
-	line color: Color veryVeryLightGray.
-	canvas add: line.
-	line pushBack.
-	
-	lbl := RSLabel model: (self produceLineLabelFrom: cls).
-	canvas add: lbl.
-	RSLocation move: lbl onTheLeftOf: line.
-	lbl translateBy: -20@0.
 ]
 
-{ #category : #public }
+{ #category : #initialization }
+DSA >> setOffsetMinute: min seconds: sec [
+	offset := Duration days: 0 hours: 0 minutes: min seconds: sec
+]
+
+{ #category : #private }
 DSA >> visualize: someEvents [
-	| canvas blackList index rootClasses |
-	events := someEvents.
-	
-	canvas := RSCanvas new.
-	blackList := { DSMouseEventRecord }.
-	index := 0.
-	rootClasses := DSAbstractEventRecord subclasses copyWithoutAll: blackList.
-	rootClasses do: [ :rootCls | 
-		| aColor |
-		aColor := Color random translucent.
-		rootCls subclasses do: [ :cls |
-			self render: cls index: index on: canvas color: aColor.
-			index := index + 1 ].
-		index := index + 1 ].
-	
-	canvas @ RSCanvasController.
-	^ canvas
+	^ DSAVisualization new events: someEvents; visualize
 ]
 
 { #category : #public }
 DSA >> visualizeFromFileName: aFilename [
+	"Public method. Entry point of the Visualization Framework."
 	
 	"es := OCDbgExampleCode loadDataFromPath: aFilename."
 	self assert: [ aFilename isString ].
 	self assert: [ aFilename endsWith: '.ston' ].
 	events := STON fromString: aFilename asFileReference readStream contents.
+	self populateWindows.
 	^ self visualize: events
+]
+
+{ #category : #public }
+DSA >> visualizeWindowTimelines [
+
+	| c maxDuration minTime maxTime box widthCanvas |
+	c := RSCanvas new.
+	widthCanvas := 500.
+	maxDuration := self windows max: #durationAsMinute.
+	minTime := (self windows min: #firstEventTime).
+	maxTime := (self windows max: #lastEventTime).
+	self windows doWithIndex: [ :win :index | 
+		box := RSBox new.
+		box model: win.
+		box height: 10.
+		box width: win durationAsMinute / maxDuration * widthCanvas.
+		c add: box.
+		win isDebugger ifTrue: [ box color: Color pink ].
+		win isInspector ifTrue: [ box color: Color blue ].
+		win isSenderOrImplementor ifTrue: [ box color: Color green ].
+		box @ RSPopup.
+	].
+	RSVerticalLineLayout new verticalGap: 5; on: c shapes.
+	
+	c shapes do: [ :aBox |
+		| ss |
+		ss := aBox model firstEventTime - minTime.
+		aBox model sessionStart: ss + offset.
+		aBox translateBy: (ss asDuration asMinutes / maxDuration * widthCanvas)@ 0 ].
+	
+	c @ RSCanvasController.
+	^ c
+]
+
+{ #category : #'public - inspector' }
+DSA >> windows [
+	^ windows
 ]
