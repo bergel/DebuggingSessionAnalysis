@@ -4,14 +4,13 @@ Starting from a new Pharo 11 image, you can install all the necessary with first
 
 ```
 Metacello new
-    baseline: 'DebuggingSpy';
-    repository: 'github://StevenCostiou/DebuggingSpy';
+    baseline: 'Phex';
+    repository: 'github://Pharo-XP-Tools/Phex:baseline-update';
     load.
 
-
 Metacello new
-    baseline: 'OCDbgAnalysis';
-    repository: 'github://Pharo-XP-Tools/OCDbgAnalysis:main';
+    baseline: 'DebuggingSpy';
+    repository: 'github://StevenCostiou/DebuggingSpy';
     load.
 ```
 
