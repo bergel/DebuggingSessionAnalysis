@@ -1,20 +1,6 @@
 # DebuggingSessionAnalysis
 
-Starting from a new Pharo 11 image, you can install all the necessary with first the requirements:
-
-```
-Metacello new
-    baseline: 'Phex';
-    repository: 'github://Pharo-XP-Tools/Phex:baseline-update';
-    load.
-
-Metacello new
-    baseline: 'DebuggingSpy';
-    repository: 'github://StevenCostiou/DebuggingSpy';
-    load.
-```
-
-And then the visualization tool itself:
+Starting from a new Pharo 11 image, and then the visualization tool itself:
 
 ```
 Metacello new
@@ -23,7 +9,7 @@ Metacello new
     load.
 ```
 
-You then need a trace to be visualized. Unfortunately, no traces are publically shared at this moment. 
+You then need a trace to be visualized. Unfortunately, no traces are publicly shared at this moment. 
 Once you have a trace, you can open the visualization using the following incantation:
 
 ```
