@@ -5,7 +5,6 @@ Class {
 		'events',
 		'windows',
 		'groups',
-		'w',
 		'offset'
 	],
 	#category : #DebuggingSessionAnalysis
@@ -44,6 +43,20 @@ DSA >> inspectorCanvasContext: aContext [
 ]
 
 { #category : #'public - inspector' }
+DSA >> inspectorVisualizeWindowFlow [
+	<inspectorPresentationOrder: 50 title: 'Window flow'>
+	^ SpRoassal3InspectorPresenter new
+		canvas: self visualizeWindowFlow;
+		yourself
+]
+
+{ #category : #'public - inspector' }
+DSA >> inspectorVisualizeWindowFlowContext: aContext [
+
+	aContext withoutEvaluator
+]
+
+{ #category : #'public - inspector' }
 DSA >> inspectorWindow [
 	<inspectorPresentationOrder: 90 title: 'All windows'>
 	^ SpListPresenter new
@@ -59,16 +72,48 @@ DSA >> inspectorWindowTimeline [
 		yourself
 ]
 
+{ #category : #accessing }
+DSA >> pingpongWindows [
+	| pWindows |
+	pWindows := OrderedCollection new.
+	self windows do: [ :win |
+		(win nextWindows anySatisfy: [ :ww | ww nextWindows includes: win ])
+			ifTrue: [ pWindows add: win ]
+	].
+	^ pWindows
+]
+
 { #category : #private }
 DSA >> populateWindows [
+	| previousWindow currentWindow isPreviousWindowClosed |
 	windows := OrderedCollection new.
 	groups := (events groupedBy: #windowId) associations.
 	groups do: [ :assoc |
-		w := DSAWindow new.
-		w windowId: assoc key.
-		w events: assoc value.
-		windows add: w ]
+		| ww |
+		ww := DSAWindow new.
+		ww windowId: assoc key.
+		ww events: assoc value.
+		windows add: ww ].
+
+	previousWindow := nil.
+	isPreviousWindowClosed := false.
+	events do: [ :anEvent |
+		currentWindow := self windowForEvent: anEvent.
+		(previousWindow notNil and: [ previousWindow ~~ currentWindow ]) ifTrue: [
+			isPreviousWindowClosed ifFalse: [ 
+				currentWindow numberOfEvents > 3 ifTrue: [ 
+					previousWindow addNextWindow: currentWindow ] ]
+		].
+		previousWindow := currentWindow.
+		isPreviousWindowClosed := anEvent isKindOf: DSWindowClosedRecord
+	]
 	
+]
+
+{ #category : #accessing }
+DSA >> relevantDebuggingWindows [
+	"Debugger windows with at least one action"
+	^ self windows select: [ :ww | ww isDebugger and: [ ww debuggingActions notEmpty ] ]
 ]
 
 { #category : #initialization }
@@ -94,6 +139,40 @@ DSA >> visualizeFromFileName: aFilename [
 ]
 
 { #category : #public }
+DSA >> visualizeWindowFlow [
+
+	| c shapes int int2 |
+	c := RSCanvas new.
+	shapes := RSCircle models: self windows.
+	shapes do: [ :s | s color: s model selectedColor ].
+	int := RSHighlightable new withOutgoingLines highlightColor:
+		       Color red.
+	int2 := RSHighlightable new withIncomingLines highlightColor:
+		        Color black.
+	shapes @ RSPopup @ RSDraggable @ int @ int2.
+	c addAll: shapes.
+
+	RSLineBuilder line
+		canvas: c;
+		shapes: shapes;
+		connectToAll: #nextWindowsAsSet.
+
+	RSForceBasedLayout new
+		charge: -300;
+		on: shapes.
+	c lines pushBack.
+	c lines do: [ :l | l color: (Color gray alpha: 0.1) ].
+
+	RSNormalizer size
+		shapes: shapes;
+		from: 5;
+		to: 20;
+		normalize: #numberOfEvents.
+	c @ RSCanvasController.
+	^ c
+]
+
+{ #category : #public }
 DSA >> visualizeWindowTimelines [
 
 	| c maxDuration minTime maxTime box widthCanvas |
@@ -106,11 +185,9 @@ DSA >> visualizeWindowTimelines [
 		box := RSBox new.
 		box model: win.
 		box height: 10.
-		box width: win durationAsMinute / maxDuration * widthCanvas.
+		box width: ((win durationAsMinute / maxDuration * widthCanvas) max: 5).
 		c add: box.
-		win isDebugger ifTrue: [ box color: Color pink ].
-		win isInspector ifTrue: [ box color: Color blue ].
-		win isSenderOrImplementor ifTrue: [ box color: Color green ].
+		box color: win selectedColor.
 		box @ RSPopup.
 	].
 	RSVerticalLineLayout new verticalGap: 5; on: c shapes.
@@ -123,6 +200,11 @@ DSA >> visualizeWindowTimelines [
 	
 	c @ RSCanvasController.
 	^ c
+]
+
+{ #category : #private }
+DSA >> windowForEvent: anEvent [
+	^ windows detect: [ :win | win windowId = anEvent windowId ]
 ]
 
 { #category : #'public - inspector' }

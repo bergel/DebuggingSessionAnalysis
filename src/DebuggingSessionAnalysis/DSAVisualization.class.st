@@ -52,13 +52,13 @@ DSAVisualization >> render: cls index: index on: canvas color: aColor [
 DSAVisualization >> visualize [
 	| canvas blackList index rootClasses |
 	canvas := RSCanvas new.
-	blackList := { DSMouseEventRecord }.
+	blackList := { DSMouseEventRecord . DSSurveyRecord }.
 	index := 0.
 	rootClasses := DSAbstractEventRecord subclasses copyWithoutAll: blackList.
 	rootClasses do: [ :rootCls | 
 		| aColor |
 		aColor := Color random translucent.
-		rootCls subclasses do: [ :cls |
+		({rootCls}, rootCls subclasses) do: [ :cls |
 			self render: cls index: index on: canvas color: aColor.
 			index := index + 1 ].
 		index := index + 1 ].
