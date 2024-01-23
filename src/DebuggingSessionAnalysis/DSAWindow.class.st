@@ -22,7 +22,14 @@ DSAWindow >> addNextWindow: aWindow [
 { #category : #accessing }
 DSAWindow >> debuggingActions [
 	"Return all step actions and browse actions"
-	^ self events select: [ :e | { DSStepActionRecord . DSBrowseContextRecord } includes: e class ]
+	^ self events select: [ :e | 
+		{ DSStepActionRecord . 
+
+		  DSBrowseContextRecord .		
+		  DSSelectInspectorPageRecord .
+		  DSBrowseContextRecord .
+		  DSPlaygroundReadRecord
+		} includes: e class ]
 ]
 
 { #category : #accessing }
@@ -181,18 +188,30 @@ DSAWindow >> visualizeDebuggingActions [
 	c := RSCanvas new.
 	self debuggingActions do: [ :act |
 		| s s2 |
+		"DEBUG ACTION"
 		act class == DSStepActionRecord ifTrue: [
 			d := Dictionary newFromPairs: { 'Over'. '>'. 'Into'. 'V' . 'Through' . '>>' . 'Restart' . 'R' . 'Proceed' . 'P' }.
 			s := RSLabel new
 				     text: (d at: act eventName);
 				     color: Color red.
 
-			s2 := RSLabel new text: act context ].
+			s2 := RSLabel new text: (act context asString), (act node). ].
+	
+		"INSPECTION ACTION"	
+		act class ~~ DSStepActionRecord ifTrue: [
+			s := RSLabel new
+				     text: 'I';
+				     color: Color green.
+
+			s2 := RSLabel new text: act context
+		].
+	
 		s ifNotNil: [
-			s @ RSPopup.
-			c
-				add: (s model: act);
-				add: s2 ] ].
+		s @ RSPopup.
+		c
+			add: (s model: act);
+			add: s2 ].
+	].
 	RSGridLayout new
 		lineItemsCount: 2;
 		on: c shapes.

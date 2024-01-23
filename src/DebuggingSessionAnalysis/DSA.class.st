@@ -10,6 +10,11 @@ Class {
 	#category : #DebuggingSessionAnalysis
 }
 
+{ #category : #accessing }
+DSA >> events [
+	^ events
+]
+
 { #category : #public }
 DSA >> fromFileName: aFilename [
 	"Public method. Entry point of the Visualization Framework."
@@ -20,6 +25,12 @@ DSA >> fromFileName: aFilename [
 	events := STON fromString: aFilename asFileReference readStream contents.
 	self populateWindows.
 	^ self
+]
+
+{ #category : #accessing }
+DSA >> historyWindows [
+	"NEED TO BUILD A VISUALIZATION FOR THIS!!!!!"
+	^ (DSRecordHistory on: self events) buildWindowHistory
 ]
 
 { #category : #initialization }
@@ -113,7 +124,7 @@ DSA >> populateWindows [
 { #category : #accessing }
 DSA >> relevantDebuggingWindows [
 	"Debugger windows with at least one action"
-	^ self windows select: [ :ww | ww isDebugger and: [ ww debuggingActions notEmpty ] ]
+	^ (self windows select: [ :ww | ww isDebugger and: [ ww debuggingActions notEmpty ] ]) sortedAs: #firstEventTime
 ]
 
 { #category : #initialization }
