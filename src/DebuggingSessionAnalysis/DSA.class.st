@@ -68,6 +68,14 @@ DSA >> inspectorVisualizeWindowFlowContext: aContext [
 ]
 
 { #category : #'public - inspector' }
+DSA >> inspectorVisualizeWindowHistory [
+	<inspectorPresentationOrder: 50 title: 'Window History'>
+	^ SpRoassal3InspectorPresenter new
+		canvas: self visualizeHistory;
+		yourself
+]
+
+{ #category : #'public - inspector' }
 DSA >> inspectorWindow [
 	<inspectorPresentationOrder: 90 title: 'All windows'>
 	^ SpListPresenter new
@@ -147,6 +155,47 @@ DSA >> visualizeFromFileName: aFilename [
 	events := STON fromString: aFilename asFileReference readStream contents.
 	self populateWindows.
 	^ self visualize: events
+]
+
+{ #category : #public }
+DSA >> visualizeHistory [
+
+	| windowSequence windowSequencePrevious previousWindow historyByWindow c |
+	"Key are windows, value are next window"
+	windowSequencePrevious := Dictionary new.
+	previousWindow := nil.
+	windowSequence := self historyWindows windowJumps collect: [:j | j window sourceEvent windowId ].
+	windowSequence do: [ :w |
+		previousWindow ifNotNil: [
+			windowSequencePrevious at: w put: previousWindow ].
+		previousWindow := w ].
+
+	historyByWindow := (self historyWindows windowJumps groupedBy:
+		                    [:j | j window sourceEvent windowId ]) associations.
+
+	c := RSCanvas new.
+	historyByWindow do: [ :assoc |
+		| box |
+		box := RSBox new size: assoc value size / 20 + 5; model: assoc key.
+		
+		(assoc value first printString beginsWith: 'Browser') ifTrue: [ box color: Color green ].
+		(assoc value first printString beginsWith: 'Inspector') ifTrue: [ box color: Color blue ].
+		(assoc value first printString beginsWith: 'Debugger') ifTrue: [ box color: Color pink ].
+		
+		c addShape: box.
+		box @ RSPopup @ RSDraggable ].
+
+	"RSNormalizer size
+		shapes: c shapes;
+		normalize: [ :m | m value size ]."
+
+	RSLineBuilder line
+		canvas: c;
+		shapes: c shapes;
+		connectFrom: [ :w | windowSequencePrevious at: w ifAbsent: [ nil ] ].
+
+	RSForceBasedLayout on: (c shapes select: [:s | s class == RSBox ]).
+	^ c @ RSCanvasController
 ]
 
 { #category : #public }
