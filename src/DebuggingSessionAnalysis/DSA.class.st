@@ -171,7 +171,7 @@ DSA >> visualizeHistory [
 		previousWindow := w ].
 
 	historyByWindow := (self historyWindows windowJumps groupedBy:
-		                    [:j | j window sourceEvent windowId ]) associations.
+		                    [ :j | j window sourceEvent windowId ]) associations.
 
 	c := RSCanvas new.
 	historyByWindow do: [ :assoc |
@@ -192,6 +192,7 @@ DSA >> visualizeHistory [
 	RSLineBuilder line
 		canvas: c;
 		shapes: c shapes;
+		moveBehind;
 		connectFrom: [ :w | windowSequencePrevious at: w ifAbsent: [ nil ] ].
 
 	RSForceBasedLayout on: (c shapes select: [:s | s class == RSBox ]).
