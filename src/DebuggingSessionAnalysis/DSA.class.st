@@ -160,42 +160,53 @@ DSA >> visualizeFromFileName: aFilename [
 { #category : #public }
 DSA >> visualizeHistory [
 
-	| windowSequence windowSequencePrevious previousWindow historyByWindow c |
-	"Key are windows, value are next window"
-	windowSequencePrevious := Dictionary new.
+	| windowSequence historyByWindowDict previousWindow historyByWindow c compound compounds jumps |
+	
+	"HISTORY BY WINDOW"
+	historyByWindow := DSAHistoryWindow fromAssociations: 
+								(self historyWindows windowJumps groupedBy: #windowId) associations.
+	historyByWindowDict := Dictionary new.
+	historyByWindow do: [ :hw |
+		historyByWindowDict at: hw windowId put: hw ].
+
+
+	"CONNECT NEXT"
 	previousWindow := nil.
-	windowSequence := self historyWindows windowJumps collect: [:j | j window sourceEvent windowId ].
+	windowSequence := self historyWindows windowJumps collect: #windowId.
 	windowSequence do: [ :w |
 		previousWindow ifNotNil: [
-			windowSequencePrevious at: w put: previousWindow ].
-		previousWindow := w ].
+			(historyByWindowDict at: w) previousWindowHistory: (historyByWindowDict at: previousWindow).
+		].
+		previousWindow := w 
+	].
 
-	historyByWindow := (self historyWindows windowJumps groupedBy:
-		                    [ :j | j window sourceEvent windowId ]) associations.
 
+	"MAIN RENDERING"
 	c := RSCanvas new.
-	historyByWindow do: [ :assoc |
-		| box |
-		box := RSBox new size: assoc value size / 20 + 5; model: assoc key.
-		
-		(assoc value first printString beginsWith: 'Browser') ifTrue: [ box color: Color green ].
-		(assoc value first printString beginsWith: 'Inspector') ifTrue: [ box color: Color blue ].
-		(assoc value first printString beginsWith: 'Debugger') ifTrue: [ box color: Color pink ].
-		
-		c addShape: box.
-		box @ RSPopup @ RSDraggable ].
+	compounds := RSGroup new.
+	historyByWindow do: [ :historyWin |
+		compound := RSComposite new.
+		jumps := RSBox models: historyWin jumps.
+		jumps do: [ :j | j size: ((j model duration asSeconds sqrt * 3) max: 5) ].
+		RSFlowLayout on: jumps.
 
-	"RSNormalizer size
-		shapes: c shapes;
-		normalize: [ :m | m value size ]."
+		compound shapes: jumps.
+		compound color: historyWin color.
+		compound model: historyWin.
+		compound padding: 10.
+		"compound := RSBox new color: historyWin color; model: historyWin."
+		
+		c addShape: compound.
+		compounds add: compound.
+		compound @ RSPopup @ RSDraggable ].
 
 	RSLineBuilder line
 		canvas: c;
-		shapes: c shapes;
+		shapes: compounds;
 		moveBehind;
-		connectFrom: [ :w | windowSequencePrevious at: w ifAbsent: [ nil ] ].
+		connectFrom: #previousWindowHistory.
 
-	RSForceBasedLayout on: (c shapes select: [:s | s class == RSBox ]).
+	RSForceBasedLayout new charge: -2000; on: compounds.
 	^ c @ RSCanvasController
 ]
 
