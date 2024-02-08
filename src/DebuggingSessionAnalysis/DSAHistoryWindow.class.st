@@ -73,6 +73,16 @@ DSAHistoryWindow >> previousWindowHistory: anObject [
 	previousWindowHistory := anObject
 ]
 
+{ #category : #printing }
+DSAHistoryWindow >> printOn: str [
+	super printOn: str.
+	str nextPut: $(.
+	self isDebugger ifTrue: [ str nextPutAll: 'Debugger' ].
+	self isInspector ifTrue: [ str nextPutAll: 'Inspector' ].
+	self isBrowser ifTrue: [ str nextPutAll: 'Browser' ].
+	str nextPut: $)
+]
+
 { #category : #accessing }
 DSAHistoryWindow >> windowId [
 

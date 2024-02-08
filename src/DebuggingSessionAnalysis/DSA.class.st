@@ -160,11 +160,12 @@ DSA >> visualizeFromFileName: aFilename [
 { #category : #public }
 DSA >> visualizeHistory [
 
-	| windowSequence historyByWindowDict previousWindow historyByWindow c compound compounds jumps |
+	| windowSequence historyByWindowDict previousWindow historyByWindow c compound compounds jumps hi allWindowJumps |
+	allWindowJumps := self historyWindows filteredWindowJumps.
 	
 	"HISTORY BY WINDOW"
 	historyByWindow := DSAHistoryWindow fromAssociations: 
-								(self historyWindows windowJumps groupedBy: #windowId) associations.
+								(allWindowJumps groupedBy: #windowId) associations.
 	historyByWindowDict := Dictionary new.
 	historyByWindow do: [ :hw |
 		historyByWindowDict at: hw windowId put: hw ].
@@ -172,7 +173,7 @@ DSA >> visualizeHistory [
 
 	"CONNECT NEXT"
 	previousWindow := nil.
-	windowSequence := self historyWindows windowJumps collect: #windowId.
+	windowSequence := allWindowJumps collect: #windowId.
 	windowSequence do: [ :w |
 		previousWindow ifNotNil: [
 			(historyByWindowDict at: w) previousWindowHistory: (historyByWindowDict at: previousWindow).
@@ -189,7 +190,11 @@ DSA >> visualizeHistory [
 		jumps := RSBox models: historyWin jumps.
 		jumps do: [ :j | j size: ((j model duration asSeconds sqrt * 3) max: 5) ].
 		RSFlowLayout on: jumps.
-
+		"jumps @ (RSHighlightable new highlightColor: Color red; highlightShapes: [ :aShape | 
+						| t |
+						t := c shapes shapeFromModel: aShape model next.
+						t ifNil: [ #() ] ])."
+		jumps @ RSPopup.
 		compound shapes: jumps.
 		compound color: historyWin color.
 		compound model: historyWin.
@@ -198,10 +203,12 @@ DSA >> visualizeHistory [
 		
 		c addShape: compound.
 		compounds add: compound.
-		compound @ RSPopup @ RSDraggable ].
+		hi := RSHighlightable new withOutgoingLines.
+		compound @ RSPopup "@ RSDraggable" ].
 
-	RSLineBuilder line
+	RSLineBuilder arrowedLine
 		canvas: c;
+		withBorderAttachPoint;
 		shapes: compounds;
 		moveBehind;
 		connectFrom: #previousWindowHistory.
