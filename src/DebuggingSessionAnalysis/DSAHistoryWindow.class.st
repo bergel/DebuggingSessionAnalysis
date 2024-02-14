@@ -4,7 +4,8 @@ Class {
 	#instVars : [
 		'windowId',
 		'jumps',
-		'previousWindowHistory'
+		'previousWindowHistory',
+		'nextHistoryWindows'
 	],
 	#category : #DebuggingSessionAnalysis
 }
@@ -21,12 +22,24 @@ DSAHistoryWindow class >> fromAssociations: associations [
 	^ result
 ]
 
+{ #category : #adding }
+DSAHistoryWindow >> addNextHistoryWindow: aDSAHistoryWindow [
+	self assert: [ aDSAHistoryWindow isKindOf: self class ].
+	nextHistoryWindows add: aDSAHistoryWindow
+]
+
 { #category : #testing }
 DSAHistoryWindow >> color [
 	self isBrowser ifTrue: [ ^ Color green ].
 	self isInspector ifTrue: [ ^ Color blue ].
 	self isDebugger ifTrue: [ ^ Color pink ].
 	^ Color gray.
+]
+
+{ #category : #'as yet unclassified' }
+DSAHistoryWindow >> initialize [
+	super initialize.
+	nextHistoryWindows := OrderedCollection new
 ]
 
 { #category : #testing }
@@ -54,6 +67,11 @@ DSAHistoryWindow >> jumps [
 DSAHistoryWindow >> jumps: anObject [
 
 	jumps := anObject
+]
+
+{ #category : #adding }
+DSAHistoryWindow >> nextHistoryWindows [
+	^ nextHistoryWindows
 ]
 
 { #category : #'as yet unclassified' }

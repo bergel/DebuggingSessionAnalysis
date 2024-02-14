@@ -176,7 +176,8 @@ DSA >> visualizeHistory [
 	windowSequence := allWindowJumps collect: #windowId.
 	windowSequence do: [ :w |
 		previousWindow ifNotNil: [
-			(historyByWindowDict at: w) previousWindowHistory: (historyByWindowDict at: previousWindow).
+			"(historyByWindowDict at: w) previousWindowHistory: (historyByWindowDict at: previousWindow)."
+			(historyByWindowDict at: previousWindow) addNextHistoryWindow: (historyByWindowDict at: w)
 		].
 		previousWindow := w 
 	].
@@ -211,7 +212,7 @@ DSA >> visualizeHistory [
 		withBorderAttachPoint;
 		shapes: compounds;
 		moveBehind;
-		connectFrom: #previousWindowHistory.
+		connectToAll: #nextHistoryWindows.
 
 	RSForceBasedLayout new charge: -2000; on: compounds.
 	^ c @ RSCanvasController
