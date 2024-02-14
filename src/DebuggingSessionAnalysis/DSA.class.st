@@ -160,7 +160,7 @@ DSA >> visualizeFromFileName: aFilename [
 { #category : #public }
 DSA >> visualizeHistory [
 
-	| windowSequence historyByWindowDict previousWindow historyByWindow c compound compounds jumps hi allWindowJumps |
+	| windowSequence historyByWindowDict previousWindow historyByWindow c compound compounds jumps hi allWindowJumps allLeavesShapes highlightable |
 	allWindowJumps := self historyWindows filteredWindowJumps.
 	
 	"HISTORY BY WINDOW"
@@ -214,6 +214,15 @@ DSA >> visualizeHistory [
 		moveBehind;
 		connectToAll: #nextHistoryWindows.
 
+	"HIGHLIGHT NEXT JUMP"
+	allLeavesShapes := compounds flatCollect: #children.
+	highlightable := RSHighlightable new.
+	highlightable highlightColor: Color red. 
+	highlightable highlightShapes: [ :aShape | 
+		allLeavesShapes select: [ :s | aShape model next  == s model ] ].
+	allLeavesShapes @ highlightable.
+
+	"LAYOUT"
 	RSForceBasedLayout new charge: -2000; on: compounds.
 	^ c @ RSCanvasController
 ]
