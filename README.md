@@ -13,9 +13,9 @@ You then need a trace to be visualized. Unfortunately, no traces are publicly sh
 Once you have a trace, you can open the visualization using the following incantation:
 
 ```
-DSA new visualizeFromFileName: '/Users/alexandrebergel/Desktop/User-77cbb221-1daa-0d00-97e1-e4460f54a26b37993377739000'.
+DSA new 
+	fromFileName: '/Users/alexandrebergel/Downloads/internal-tests/User-V.ston'.
 ```
 
-You should get a visualization like:
-
-<img width="1373" alt="image" src="https://github.com/bergel/DebuggingSessionAnalysis/assets/393742/7d3869ab-9750-4d6a-935a-f42a95d9556f">
+You should get a visualization like this:
+<img width="1176" alt="image" src="https://github.com/bergel/DebuggingSessionAnalysis/assets/393742/d74ffc73-528d-43c8-bf96-0660b19152ae">
