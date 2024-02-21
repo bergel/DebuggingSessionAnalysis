@@ -19,6 +19,16 @@ DSWindowActivityRecord >> duration [
 ]
 
 { #category : #'*DebuggingSessionAnalysis' }
+DSWindowActivityRecord >> hasDebuggingOperations [
+	
+	self debuggingActions do: [ :act |
+		({'Over' . 'Into' . 'Through' . 'Restart' . 'Proceed'} includes: act eventName) ifTrue: [ ^ true ]
+	].
+	^ false.
+
+]
+
+{ #category : #'*DebuggingSessionAnalysis' }
 DSWindowActivityRecord >> inspectionDebuggingEvents [
 	<inspectorPresentationOrder: 50 title: 'Actions'>
 	^ SpRoassal3InspectorPresenter new
@@ -46,7 +56,7 @@ DSWindowActivityRecord >> visualizeDebuggingActions [
 		"INSPECTION ACTION"	
 		act class ~~ DSStepActionRecord ifTrue: [
 			s := RSLabel new
-				     text: 'I';
+				     text: 'In';
 				     color: Color green.
 
 			s2 := RSLabel new text: act context
@@ -64,4 +74,63 @@ DSWindowActivityRecord >> visualizeDebuggingActions [
 	(2 to: c shapes size by: 2) do: [ :i |
 		(c shapes at: i) translateBy: 40 @ 0 ].
 	^ c @ RSCanvasController
+]
+
+{ #category : #'*DebuggingSessionAnalysis' }
+DSWindowActivityRecord >> visualizeSummarizedDebuggingActions [
+
+	| c d |
+	c := RSCanvas new.
+	self debuggingActions do: [ :act |
+		| s |
+		"DEBUG ACTION"
+		act class == DSStepActionRecord ifTrue: [
+			d := Dictionary newFromPairs: { 'Over'. '>'. 'Into'. 'V' . 'Through' . '>>' . 'Restart' . 'R' . 'Proceed' . 'P' }.
+			s := RSLabel new
+				     text: (d at: act eventName);
+				     color: Color red ].
+	
+		"INSPECTION ACTION"	
+		act class ~~ DSStepActionRecord ifTrue: [
+			s := RSLabel new
+				     text: 'In';
+				     color: Color green.
+		].
+	
+		s ifNotNil: [
+			s @ RSPopup.
+			c
+				add: (s model: act) ].
+	].
+	RSGridLayout new
+		on: c shapes.
+	^ c @ RSCanvasController
+]
+
+{ #category : #'*DebuggingSessionAnalysis' }
+DSWindowActivityRecord >> visualizeSummarizedDebuggingActionsOnGroup: g [
+	"g is a RSGroup"
+	self debuggingActions do: [ :act |
+		| s d |
+		"DEBUG ACTION"
+		act class == DSStepActionRecord ifTrue: [
+			d := Dictionary newFromPairs: { 'Over'. '>'. 'Into'. 'V' . 'Through' . '>>' . 'Restart' . 'R' . 'Proceed' . 'P' }.
+			s := RSLabel new
+				     text: (d at: act eventName);
+				     color: Color red ].
+	
+		"INSPECTION ACTION"	
+		act class ~~ DSStepActionRecord ifTrue: [
+			s := RSLabel new
+				     text: 'In';
+				     color: Color green.
+		].
+	
+		s ifNotNil: [
+			s @ RSPopup.
+			g
+				add: (s model: act) ].
+	].
+	RSHorizontalLineLayout new on: g.
+	^ g
 ]
