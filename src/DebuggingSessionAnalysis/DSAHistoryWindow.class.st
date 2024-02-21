@@ -31,6 +31,7 @@ DSAHistoryWindow >> addNextHistoryWindow: aDSAHistoryWindow [
 { #category : #testing }
 DSAHistoryWindow >> color [
 	self isBrowser ifTrue: [ ^ Color green ].
+	self isImplementorOrSender ifTrue: [ ^ Color lightGreen ].
 	self isInspector ifTrue: [ ^ Color blue ].
 	self isDebugger ifTrue: [ ^ Color pink ].
 	^ Color gray.
@@ -50,6 +51,13 @@ DSAHistoryWindow >> isBrowser [
 { #category : #testing }
 DSAHistoryWindow >> isDebugger [
 	^ self jumps first printString beginsWith: 'Debugger'
+]
+
+{ #category : #testing }
+DSAHistoryWindow >> isImplementorOrSender [
+	| str |
+	str := self jumps first printString.
+	^ (str beginsWith: 'Implementor') or: [ str beginsWith: 'Senders' ]
 ]
 
 { #category : #testing }
@@ -98,6 +106,7 @@ DSAHistoryWindow >> printOn: str [
 	self isDebugger ifTrue: [ str nextPutAll: 'Debugger' ].
 	self isInspector ifTrue: [ str nextPutAll: 'Inspector' ].
 	self isBrowser ifTrue: [ str nextPutAll: 'Browser' ].
+	self isImplementorOrSender ifTrue: [ str nextPutAll: 'Implementor/Sender' ].
 	str nextPut: $)
 ]
 
