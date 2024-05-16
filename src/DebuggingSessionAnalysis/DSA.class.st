@@ -217,7 +217,7 @@ DSA >> visualizeHistory [
 				borderColor: #black;
 				padding: 3
 		].
-		jumps @ popup.
+		"jumps @ popup."
 		compound shapes: jumps.
 		compound color: historyWin color.
 		compound model: historyWin.
@@ -227,7 +227,7 @@ DSA >> visualizeHistory [
 		c addShape: compound.
 		compounds add: compound.
 		hi := RSHighlightable new withOutgoingLines.
-		compound @ RSPopup "@ RSDraggable" ].
+		compound "@ RSPopup" @ RSDraggable ].
 
 	RSLineBuilder arrowedLine
 		canvas: c;
