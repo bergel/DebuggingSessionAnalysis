@@ -16,6 +16,13 @@ DSA >> events [
 ]
 
 { #category : #public }
+DSA >> events: aCollection [
+	events := aCollection.
+	self populateWindows.
+	^ self
+]
+
+{ #category : #public }
 DSA >> fromFileName: aFilename [
 	"Public method. Entry point of the Visualization Framework."
 	
