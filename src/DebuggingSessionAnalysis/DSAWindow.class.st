@@ -257,14 +257,14 @@ DSAWindow >> visualizeSummarizedDebuggingActionsOnGroup: g [
 	self debuggingActions do: [ :act |
 		| s d |
 		"DEBUG ACTION"
-		act class == DSStepActionRecord ifTrue: [
+		(act class inheritsFrom: DSStepRecord) ifTrue: [
 			d := Dictionary newFromPairs: { 'Over'. '>'. 'Into'. 'V' . 'Through' . '>>' . 'Restart' . 'R' . 'Proceed' . 'P' }.
 			s := RSLabel new
 				     text: (d at: act eventName);
 				     color: Color red ].
 	
 		"INSPECTION ACTION"	
-		act class ~~ DSStepActionRecord ifTrue: [
+		(act class inheritsFrom: DSStepRecord) ifFalse: [
 			s := RSLabel new
 				     text: 'In';
 				     color: Color green.
