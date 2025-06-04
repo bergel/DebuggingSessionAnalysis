@@ -18,13 +18,13 @@ BaselineOfDebuggingSessionAnalysis >> loadDSSpy [
 
 	Metacello new
 		baseline: 'Phex';
-		repository: 'github://Pharo-XP-Tools/Phex:baseline-update';
+		repository: 'github://Pharo-XP-Tools/Phex:main';
 		onWarningLog;
 		load.
 
 	Metacello new
 		baseline: 'DebuggingSpy';
-		repository: 'github://StevenCostiou/DebuggingSpy:P11';
+		repository: 'github://StevenCostiou/DebuggingSpy:P12';
 		onWarningLog;
 		load
 ]
