@@ -16,6 +16,13 @@ DSA >> events [
 ]
 
 { #category : #public }
+DSA >> events: aCollection [
+	events := aCollection.
+	self populateWindows.
+	^ self
+]
+
+{ #category : #public }
 DSA >> fromFileName: aFilename [
 	"Public method. Entry point of the Visualization Framework."
 	
@@ -210,7 +217,7 @@ DSA >> visualizeHistory [
 				borderColor: #black;
 				padding: 3
 		].
-		jumps @ popup.
+		"jumps @ popup."
 		compound shapes: jumps.
 		compound color: historyWin color.
 		compound model: historyWin.
@@ -220,7 +227,7 @@ DSA >> visualizeHistory [
 		c addShape: compound.
 		compounds add: compound.
 		hi := RSHighlightable new withOutgoingLines.
-		compound @ RSPopup "@ RSDraggable" ].
+		compound "@ RSPopup" @ RSDraggable ].
 
 	RSLineBuilder arrowedLine
 		canvas: c;
