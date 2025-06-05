@@ -35,6 +35,14 @@ DSAHistoryWindow >> color [
 	self isImplementorOrSender ifTrue: [ ^ Color lightGreen ].
 	self isInspector ifTrue: [ ^ Color blue ].
 	self isDebugger ifTrue: [ ^ Color pink ].
+	
+	self isPlayground ifTrue: [ ^ Color blue muchLighter ].
+	self isBreakpointBrowser ifTrue: [ ^ Color pink muchDarker ].
+	self isCritiqueBrowser ifTrue: [ ^ Color green muchDarker ].
+	self isEpicea ifTrue: [ ^ Color green muchDarker muchDarker ].
+	self isIceberg ifTrue:[^Color blue muchDarker ].
+	self isRewriter ifTrue:[^Color blue muchLighter muchLighter ].
+	
 	^ Color gray.
 ]
 
@@ -45,25 +53,55 @@ DSAHistoryWindow >> initialize [
 ]
 
 { #category : 'testing' }
+DSAHistoryWindow >> isBreakpointBrowser [
+	^ self jumps first window isBreakpointBrowser
+]
+
+{ #category : 'testing' }
 DSAHistoryWindow >> isBrowser [
-	^ self jumps first printString beginsWith: 'Browser'
+	^ self jumps first window isBrowser
+]
+
+{ #category : 'testing' }
+DSAHistoryWindow >> isCritiqueBrowser [
+	^ self jumps first window isCritiqueBrowser
 ]
 
 { #category : 'testing' }
 DSAHistoryWindow >> isDebugger [
-	^ self jumps first printString beginsWith: 'Debugger'
+
+	^ self jumps first window isDebugger
+]
+
+{ #category : 'testing' }
+DSAHistoryWindow >> isEpicea [
+	^ self jumps first window isEpicea
+]
+
+{ #category : 'testing' }
+DSAHistoryWindow >> isIceberg [
+	^ self jumps first window isIceberg
 ]
 
 { #category : 'testing' }
 DSAHistoryWindow >> isImplementorOrSender [
-	| str |
-	str := self jumps first printString.
-	^ (str beginsWith: 'Implementor') or: [ str beginsWith: 'Senders' ]
+
+	^ self jumps first window isQueryTool
 ]
 
 { #category : 'testing' }
 DSAHistoryWindow >> isInspector [
-	^ self jumps first printString beginsWith: 'Inspector'
+	^ self jumps first window isInspector
+]
+
+{ #category : 'testing' }
+DSAHistoryWindow >> isPlayground [
+	^ self jumps first window isPlayground
+]
+
+{ #category : 'testing' }
+DSAHistoryWindow >> isRewriter [
+	^ self jumps first window isRewriter
 ]
 
 { #category : 'accessing' }
@@ -102,13 +140,14 @@ DSAHistoryWindow >> previousWindowHistory: anObject [
 
 { #category : 'printing' }
 DSAHistoryWindow >> printOn: str [
-	super printOn: str.
-	str nextPut: $(.
+
 	self isDebugger ifTrue: [ str nextPutAll: 'Debugger' ].
 	self isInspector ifTrue: [ str nextPutAll: 'Inspector' ].
 	self isBrowser ifTrue: [ str nextPutAll: 'Browser' ].
-	self isImplementorOrSender ifTrue: [ str nextPutAll: 'Implementor/Sender' ].
-	str nextPut: $)
+	self isImplementorOrSender ifTrue: [
+		str nextPutAll: 'Implementor/Sender' ].
+	str << ' - '.
+	super printOn: str 
 ]
 
 { #category : 'accessing' }
