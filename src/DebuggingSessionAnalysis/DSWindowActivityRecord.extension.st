@@ -1,6 +1,6 @@
-Extension { #name : #DSWindowActivityRecord }
+Extension { #name : 'DSWindowActivityRecord' }
 
-{ #category : #'*DebuggingSessionAnalysis' }
+{ #category : '*DebuggingSessionAnalysis' }
 DSWindowActivityRecord >> debuggingActions [
 	"Return all step actions and browse actions"
 	^ self events select: [ :e | 
@@ -13,12 +13,12 @@ DSWindowActivityRecord >> debuggingActions [
 		} includes: e class ]
 ]
 
-{ #category : #'*DebuggingSessionAnalysis' }
+{ #category : '*DebuggingSessionAnalysis' }
 DSWindowActivityRecord >> duration [
 	^ events last dateTime - events first dateTime
 ]
 
-{ #category : #'*DebuggingSessionAnalysis' }
+{ #category : '*DebuggingSessionAnalysis' }
 DSWindowActivityRecord >> hasDebuggingOperations [
 	^ self events anySatisfy: [ :e | e isKindOf: DSStepRecord ]
 "	self debuggingActions do: [ :act |
@@ -28,7 +28,7 @@ DSWindowActivityRecord >> hasDebuggingOperations [
 "
 ]
 
-{ #category : #'*DebuggingSessionAnalysis' }
+{ #category : '*DebuggingSessionAnalysis' }
 DSWindowActivityRecord >> inspectionDebuggingEvents [
 	<inspectorPresentationOrder: 50 title: 'Actions'>
 	^ SpRoassal3InspectorPresenter new
@@ -37,7 +37,7 @@ DSWindowActivityRecord >> inspectionDebuggingEvents [
 
 ]
 
-{ #category : #'*DebuggingSessionAnalysis' }
+{ #category : '*DebuggingSessionAnalysis' }
 DSWindowActivityRecord >> visualizeDebuggingActions [
 
 	| c d |
@@ -76,7 +76,7 @@ DSWindowActivityRecord >> visualizeDebuggingActions [
 	^ c @ RSCanvasController
 ]
 
-{ #category : #'*DebuggingSessionAnalysis' }
+{ #category : '*DebuggingSessionAnalysis' }
 DSWindowActivityRecord >> visualizeSummarizedDebuggingActions [
 
 	| c d |
@@ -107,7 +107,7 @@ DSWindowActivityRecord >> visualizeSummarizedDebuggingActions [
 	^ c @ RSCanvasController
 ]
 
-{ #category : #'*DebuggingSessionAnalysis' }
+{ #category : '*DebuggingSessionAnalysis' }
 DSWindowActivityRecord >> visualizeSummarizedDebuggingActionsOnGroup: g [
 	"g is a RSGroup"
 	self debuggingActions do: [ :act |

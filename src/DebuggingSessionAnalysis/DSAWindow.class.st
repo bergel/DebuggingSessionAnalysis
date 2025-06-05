@@ -1,6 +1,6 @@
 Class {
-	#name : #DSAWindow,
-	#superclass : #Object,
+	#name : 'DSAWindow',
+	#superclass : 'Object',
 	#instVars : [
 		'windowId',
 		'events',
@@ -8,18 +8,20 @@ Class {
 		'firstEventTime',
 		'lastEventTime',
 		'sessionStart',
-		'nextWindows'
+		'nextWindows',
+		'toolInfos'
 	],
-	#category : #DebuggingSessionAnalysis
+	#category : 'DebuggingSessionAnalysis',
+	#package : 'DebuggingSessionAnalysis'
 }
 
-{ #category : #adding }
+{ #category : 'adding' }
 DSAWindow >> addNextWindow: aWindow [
 	self assert: [ aWindow class == self class ].
 	nextWindows add: aWindow.
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSAWindow >> debuggingActions [
 	"Return all step actions and browse actions"
 	^ self events select: [ :e | 
@@ -32,18 +34,18 @@ DSAWindow >> debuggingActions [
 		} includes: e class ]
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSAWindow >> durationAsMinute [
 	^ duration asMinutes round: 1
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSAWindow >> events [
 
 	^ events
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSAWindow >> events: someEvents [
 	| dts |
 	self assert: [ someEvents isCollection ].
@@ -60,23 +62,23 @@ DSAWindow >> events: someEvents [
 
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSAWindow >> firstEventTime [
 	^ firstEventTime
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DSAWindow >> hasNextWindow [
 	^ nextWindows notEmpty
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DSAWindow >> initialize [
 	super initialize.
 	nextWindows := OrderedCollection new
 ]
 
-{ #category : #'public - inspector' }
+{ #category : 'public - inspector' }
 DSAWindow >> inspectionDebuggingEvents [
 	<inspectorPresentationOrder: 50 title: 'Actions'>
 	^ SpRoassal3InspectorPresenter new
@@ -85,7 +87,7 @@ DSAWindow >> inspectionDebuggingEvents [
 
 ]
 
-{ #category : #'public - inspector' }
+{ #category : 'public - inspector' }
 DSAWindow >> inspectorCanvas [
 	<inspectorPresentationOrder: 50 title: 'Timeline'>
 	^ SpRoassal3InspectorPresenter new
@@ -93,13 +95,13 @@ DSAWindow >> inspectorCanvas [
 		yourself
 ]
 
-{ #category : #'public - inspector' }
+{ #category : 'public - inspector' }
 DSAWindow >> inspectorCanvasContext: aContext [
 
 	aContext withoutEvaluator
 ]
 
-{ #category : #'public - inspector' }
+{ #category : 'public - inspector' }
 DSAWindow >> inspectorEvents [
 	<inspectorPresentationOrder: 90 title: 'All events'>
 	^ SpListPresenter new
@@ -107,46 +109,46 @@ DSAWindow >> inspectorEvents [
 			yourself
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DSAWindow >> isDebugger [
 	self events ifEmpty: [ ^ false ].
 	^ self events first class == DSDebuggerOpeningRecord
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DSAWindow >> isInspector [
 	self events ifEmpty: [ ^ false ].
 	^ self events first class == DSWindowOpenedRecord and: [ self events first windowName beginsWith: 'Inspector' ]
 ]
 
-{ #category : #testing }
+{ #category : 'testing' }
 DSAWindow >> isSenderOrImplementor [
 	self events ifEmpty: [ ^ false ].
 	self events detect: [ :e | e class == DSQueryBrowseRecord ] ifNone: [ ^ false ].
 	^ true
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSAWindow >> lastEventTime [
 	^ lastEventTime
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSAWindow >> nextWindows [
 	^ nextWindows
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSAWindow >> nextWindowsAsSet [
 	^ nextWindows asSet
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DSAWindow >> numberOfEvents [
 	^ events size
 ]
 
-{ #category : #printing }
+{ #category : 'printing' }
 DSAWindow >> printOn: str [
 	super printOn: str.
 	str nextPut: $(.
@@ -158,7 +160,7 @@ DSAWindow >> printOn: str [
 	str nextPut: $).
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSAWindow >> selectedColor [
 	self isDebugger ifTrue: [ ^  Color pink ].
 	self isInspector ifTrue: [ ^ Color blue ].
@@ -166,22 +168,27 @@ DSAWindow >> selectedColor [
 	^ Color gray
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSAWindow >> sessionStart [
 	^ sessionStart
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSAWindow >> sessionStart: aDateAndTime [
 	sessionStart := aDateAndTime
 ]
 
-{ #category : #'private - visualization' }
+{ #category : 'accessing' }
+DSAWindow >> toolInfos: aCollection [ 
+	toolInfos := aCollection 
+]
+
+{ #category : 'private - visualization' }
 DSAWindow >> visualize [
 	^ DSAVisualization new events: events; visualize
 ]
 
-{ #category : #'private - visualization' }
+{ #category : 'private - visualization' }
 DSAWindow >> visualizeDebuggingActions [
 
 	| c d |
@@ -220,7 +227,7 @@ DSAWindow >> visualizeDebuggingActions [
 	^ c @ RSCanvasController
 ]
 
-{ #category : #'private - visualization' }
+{ #category : 'private - visualization' }
 DSAWindow >> visualizeSummarizedDebuggingActions [
 
 	| c d |
@@ -251,7 +258,7 @@ DSAWindow >> visualizeSummarizedDebuggingActions [
 	^ c @ RSCanvasController
 ]
 
-{ #category : #'private - visualization' }
+{ #category : 'private - visualization' }
 DSAWindow >> visualizeSummarizedDebuggingActionsOnGroup: g [
 	"g is a RSGroup"
 	self debuggingActions do: [ :act |
@@ -280,13 +287,13 @@ DSAWindow >> visualizeSummarizedDebuggingActionsOnGroup: g [
 	^ g
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSAWindow >> windowId [
 
 	^ windowId
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSAWindow >> windowId: anID [
 
 	windowId := anID

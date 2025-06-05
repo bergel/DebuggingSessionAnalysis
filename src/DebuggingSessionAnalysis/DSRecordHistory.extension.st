@@ -1,6 +1,6 @@
-Extension { #name : #DSRecordHistory }
+Extension { #name : 'DSRecordHistory' }
 
-{ #category : #'*DebuggingSessionAnalysis' }
+{ #category : '*DebuggingSessionAnalysis' }
 DSRecordHistory >> windowJumps [
 	^ windowJumps
 	

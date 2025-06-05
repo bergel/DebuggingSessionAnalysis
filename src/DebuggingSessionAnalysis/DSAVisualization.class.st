@@ -1,25 +1,26 @@
 Class {
-	#name : #DSAVisualization,
-	#superclass : #Object,
+	#name : 'DSAVisualization',
+	#superclass : 'Object',
 	#instVars : [
 		'events'
 	],
-	#category : #DebuggingSessionAnalysis
+	#category : 'DebuggingSessionAnalysis',
+	#package : 'DebuggingSessionAnalysis'
 }
 
-{ #category : #private }
+{ #category : 'private' }
 DSAVisualization >> events: someEvents [
 	events := someEvents
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 DSAVisualization >> produceLineLabelFrom: aClass [
 	| n |
 	n := aClass name.
 	^ n copyFrom: 3 to: n size - 'Record' size
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 DSAVisualization >> render: cls index: index on: canvas color: aColor [
 	| relevantEvents allShapes line lbl verticalGap |
 	verticalGap := 15.
@@ -48,7 +49,7 @@ DSAVisualization >> render: cls index: index on: canvas color: aColor [
 	lbl translateBy: -20@0.
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 DSAVisualization >> visualize [
 	| canvas blackList index rootClasses |
 	canvas := RSCanvas new.

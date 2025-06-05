@@ -1,28 +1,30 @@
 Class {
-	#name : #DSA,
-	#superclass : #Object,
+	#name : 'DSA',
+	#superclass : 'Object',
 	#instVars : [
 		'events',
 		'windows',
 		'groups',
-		'offset'
+		'offset',
+		'history'
 	],
-	#category : #DebuggingSessionAnalysis
+	#category : 'DebuggingSessionAnalysis',
+	#package : 'DebuggingSessionAnalysis'
 }
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSA >> events [
 	^ events
 ]
 
-{ #category : #public }
+{ #category : 'public' }
 DSA >> events: aCollection [
 	events := aCollection.
 	self populateWindows.
 	^ self
 ]
 
-{ #category : #public }
+{ #category : 'public' }
 DSA >> fromFileName: aFilename [
 	"Public method. Entry point of the Visualization Framework."
 	
@@ -30,23 +32,24 @@ DSA >> fromFileName: aFilename [
 	self assert: [ aFilename isString ].
 	self assert: [ aFilename endsWith: '.ston' ].
 	events := STON fromString: aFilename asFileReference readStream contents.
+	history := DSRecordHistory on: events.
 	self populateWindows.
 	^ self
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSA >> historyWindows [
 	"NEED TO BUILD A VISUALIZATION FOR THIS!!!!!"
 	^ (DSRecordHistory on: self events) buildWindowHistory
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DSA >> initialize [
 	super initialize.
 	offset := Duration days: 0 hours: 0 minutes: 0 seconds: 0
 ]
 
-{ #category : #'public - inspector' }
+{ #category : 'public - inspector' }
 DSA >> inspectorCanvas [
 	<inspectorPresentationOrder: 50 title: 'Timeline'>
 	^ SpRoassal3InspectorPresenter new
@@ -54,13 +57,13 @@ DSA >> inspectorCanvas [
 		yourself
 ]
 
-{ #category : #'public - inspector' }
+{ #category : 'public - inspector' }
 DSA >> inspectorCanvasContext: aContext [
 
 	aContext withoutEvaluator
 ]
 
-{ #category : #'public - inspector' }
+{ #category : 'public - inspector' }
 DSA >> inspectorVisualizeWindowFlow [
 	<inspectorPresentationOrder: 50 title: 'Window flow'>
 	^ SpRoassal3InspectorPresenter new
@@ -68,13 +71,13 @@ DSA >> inspectorVisualizeWindowFlow [
 		yourself
 ]
 
-{ #category : #'public - inspector' }
+{ #category : 'public - inspector' }
 DSA >> inspectorVisualizeWindowFlowContext: aContext [
 
 	aContext withoutEvaluator
 ]
 
-{ #category : #'public - inspector' }
+{ #category : 'public - inspector' }
 DSA >> inspectorVisualizeWindowHistory [
 	<inspectorPresentationOrder: 50 title: 'Window History'>
 	^ SpRoassal3InspectorPresenter new
@@ -82,7 +85,7 @@ DSA >> inspectorVisualizeWindowHistory [
 		yourself
 ]
 
-{ #category : #'public - inspector' }
+{ #category : 'public - inspector' }
 DSA >> inspectorWindow [
 	<inspectorPresentationOrder: 90 title: 'All windows'>
 	^ SpListPresenter new
@@ -90,7 +93,7 @@ DSA >> inspectorWindow [
 		yourself
 ]
 
-{ #category : #'public - inspector' }
+{ #category : 'public - inspector' }
 DSA >> inspectorWindowTimeline [
 	<inspectorPresentationOrder: 90 title: 'Window timeline'>
 	^ SpRoassal3InspectorPresenter new
@@ -98,7 +101,7 @@ DSA >> inspectorWindowTimeline [
 		yourself
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSA >> pingpongWindows [
 	| pWindows |
 	pWindows := OrderedCollection new.
@@ -109,7 +112,7 @@ DSA >> pingpongWindows [
 	^ pWindows
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 DSA >> populateWindows [
 	| previousWindow currentWindow isPreviousWindowClosed |
 	windows := OrderedCollection new.
@@ -119,6 +122,7 @@ DSA >> populateWindows [
 		ww := DSAWindow new.
 		ww windowId: assoc key.
 		ww events: assoc value.
+		ww toolInfos: (history toolInfosFor: assoc key).
 		windows add: ww ].
 
 	previousWindow := nil.
@@ -136,23 +140,23 @@ DSA >> populateWindows [
 	
 ]
 
-{ #category : #accessing }
+{ #category : 'accessing' }
 DSA >> relevantDebuggingWindows [
 	"Debugger windows with at least one action"
 	^ (self windows select: [ :ww | ww isDebugger and: [ ww debuggingActions notEmpty ] ]) sortedAs: #firstEventTime
 ]
 
-{ #category : #initialization }
+{ #category : 'initialization' }
 DSA >> setOffsetMinute: min seconds: sec [
 	offset := Duration days: 0 hours: 0 minutes: min seconds: sec
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 DSA >> visualize: someEvents [
 	^ DSAVisualization new events: someEvents; visualize
 ]
 
-{ #category : #public }
+{ #category : 'public' }
 DSA >> visualizeFromFileName: aFilename [
 	"Public method. Entry point of the Visualization Framework."
 	
@@ -164,7 +168,7 @@ DSA >> visualizeFromFileName: aFilename [
 	^ self visualize: events
 ]
 
-{ #category : #public }
+{ #category : 'public' }
 DSA >> visualizeHistory [
 
 	| windowSequence historyByWindowDict previousWindow historyByWindow c compound compounds jumps hi allWindowJumps allLeavesShapes highlightable popup lbl |
@@ -255,7 +259,7 @@ DSA >> visualizeHistory [
 	^ c @ RSCanvasController
 ]
 
-{ #category : #public }
+{ #category : 'public' }
 DSA >> visualizeWindowFlow [
 
 	| c shapes int int2 |
@@ -289,7 +293,7 @@ DSA >> visualizeWindowFlow [
 	^ c
 ]
 
-{ #category : #public }
+{ #category : 'public' }
 DSA >> visualizeWindowTimelines [
 
 	| c maxDuration minTime maxTime box widthCanvas |
@@ -319,12 +323,12 @@ DSA >> visualizeWindowTimelines [
 	^ c
 ]
 
-{ #category : #private }
+{ #category : 'private' }
 DSA >> windowForEvent: anEvent [
 	^ windows detect: [ :win | win windowId = anEvent windowId ]
 ]
 
-{ #category : #'public - inspector' }
+{ #category : 'public - inspector' }
 DSA >> windows [
 	^ windows
 ]

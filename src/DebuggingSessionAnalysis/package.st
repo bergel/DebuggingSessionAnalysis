@@ -1,1 +1,1 @@
-Package { #name : #DebuggingSessionAnalysis }
+Package { #name : 'DebuggingSessionAnalysis' }
