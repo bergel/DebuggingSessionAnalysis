@@ -88,7 +88,7 @@ DSAWindow >> initialize [
 { #category : 'public - inspector' }
 DSAWindow >> inspectionDebuggingEvents [
 	<inspectorPresentationOrder: 50 title: 'Actions'>
-	^ SpRoassal3InspectorPresenter new
+	^ SpRoassalInspectorPresenter new
 		canvas: self visualizeDebuggingActions;
 		yourself
 
