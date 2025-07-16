@@ -198,34 +198,20 @@ DSAWindow >> visualize [
 { #category : 'private - visualization' }
 DSAWindow >> visualizeDebuggingActions [
 
-	| c d |
+	| c |
 	c := RSCanvas new.
 	self debuggingActions do: [ :act |
 		| s s2 |
-		"DEBUG ACTION"
-		act class == DSStepActionRecord ifTrue: [
-			d := Dictionary newFromPairs: { 'Over'. '>'. 'Into'. 'V' . 'Through' . '>>' . 'Restart' . 'R' . 'Proceed' . 'P' }.
-			s := RSLabel new
-				     text: (d at: act eventName);
-				     color: Color red.
+		s := RSLabel new
+			     text: act glyph;
+			     color: act glyphColor.
+		s2 := RSLabel new text: act printContext.
 
-			s2 := RSLabel new text: (act context asString), (act node). ].
-	
-		"INSPECTION ACTION"	
-		act class ~~ DSStepActionRecord ifTrue: [
-			s := RSLabel new
-				     text: 'In';
-				     color: Color green.
-
-			s2 := RSLabel new text: act context
-		].
-	
 		s ifNotNil: [
-		s @ RSPopup.
-		c
-			add: (s model: act);
-			add: s2 ].
-	].
+			s @ RSPopup.
+			c
+				add: (s model: act);
+				add: s2 ] ].
 	RSGridLayout new
 		lineItemsCount: 2;
 		on: c shapes.
@@ -237,60 +223,34 @@ DSAWindow >> visualizeDebuggingActions [
 { #category : 'private - visualization' }
 DSAWindow >> visualizeSummarizedDebuggingActions [
 
-	| c d |
+	| c |
 	c := RSCanvas new.
 	self debuggingActions do: [ :act |
 		| s |
-		"DEBUG ACTION"
-		act class == DSStepActionRecord ifTrue: [
-			d := Dictionary newFromPairs: { 'Over'. '>'. 'Into'. 'V' . 'Through' . '>>' . 'Restart' . 'R' . 'Proceed' . 'P' }.
-			s := RSLabel new
-				     text: (d at: act eventName);
-				     color: Color red ].
-	
-		"INSPECTION ACTION"	
-		act class ~~ DSStepActionRecord ifTrue: [
-			s := RSLabel new
-				     text: 'In';
-				     color: Color green.
-		].
-	
+		s := RSLabel new
+			     text: act glyph;
+			     color: act glyphColor.
 		s ifNotNil: [
 			s @ RSPopup.
-			c
-				add: (s model: act) ].
-	].
-	RSGridLayout new
-		on: c shapes.
+			c add: (s model: act) ] ].
+	RSGridLayout new on: c shapes.
 	^ c @ RSCanvasController
 ]
 
 { #category : 'private - visualization' }
 DSAWindow >> visualizeSummarizedDebuggingActionsOnGroup: g [
 	"g is a RSGroup"
+
 	self debuggingActions do: [ :act |
-		| s d |
-		"DEBUG ACTION"
-		(act class inheritsFrom: DSStepRecord) ifTrue: [
-			d := Dictionary newFromPairs: { 'Over'. '>'. 'Into'. 'V' . 'Through' . '>>' . 'Restart' . 'R' . 'Proceed' . 'P' }.
-			s := RSLabel new
-				     text: (d at: act eventName);
-				     color: Color red ].
-	
-		"INSPECTION ACTION"	
-		(act class inheritsFrom: DSStepRecord) ifFalse: [
-			s := RSLabel new
-				     text: 'In';
-				     color: Color green.
-		].
-	
+		| s |
+		s := RSLabel new
+			     text: act glyph;
+			     color: act glyphColor.
+
 		s ifNotNil: [
 			s @ RSPopup.
-			g
-				add: (s model: act) ].
-	].
-	RSGridLayout new
-		on: g.
+			g add: (s model: act) ] ].
+	RSGridLayout new on: g.
 	^ g
 ]
 
