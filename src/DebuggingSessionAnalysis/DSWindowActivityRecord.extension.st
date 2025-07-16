@@ -14,11 +14,6 @@ DSWindowActivityRecord >> debuggingActions [
 ]
 
 { #category : '*DebuggingSessionAnalysis' }
-DSWindowActivityRecord >> duration [
-	^ events last dateTime - events first dateTime
-]
-
-{ #category : '*DebuggingSessionAnalysis' }
 DSWindowActivityRecord >> hasDebuggingOperations [
 	^ self events anySatisfy: [ :e | e isKindOf: DSStepRecord ]
 "	self debuggingActions do: [ :act |
