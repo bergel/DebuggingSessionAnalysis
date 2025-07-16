@@ -24,14 +24,21 @@ DSAWindow >> addNextWindow: aWindow [
 { #category : 'accessing' }
 DSAWindow >> debuggingActions [
 	"Return all step actions and browse actions"
-	^ self events select: [ :e | 
-		{ DSStepActionRecord . 
+self inspect.
+	^ self events select: [ :e |
+		  self debuggingActionsClasses includes: e class ]
+]
 
-		  DSBrowseContextRecord .		
-		  DSSelectInspectorPageRecord .
-		  DSBrowseContextRecord .
-		  DSPlaygroundReadRecord
-		} includes: e class ]
+{ #category : 'accessing' }
+DSAWindow >> debuggingActionsClasses [
+
+	| classes |
+	classes := OrderedCollection withAll: DSInspectorRecord allSubclasses.
+	classes addAll: DSPlaygroundRecord allSubclasses.
+	classes addAll: DSStepActionRecord allSubclasses.
+	classes addAll: DSStepRecord allSubclasses.
+	classes add: DSBrowseContextRecord.
+	^ classes
 ]
 
 { #category : 'accessing' }

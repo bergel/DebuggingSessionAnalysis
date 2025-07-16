@@ -3,14 +3,9 @@ Extension { #name : 'DSWindowActivityRecord' }
 { #category : '*DebuggingSessionAnalysis' }
 DSWindowActivityRecord >> debuggingActions [
 	"Return all step actions and browse actions"
-	^ self events select: [ :e | 
-		{ DSStepActionRecord . 
 
-		  DSBrowseContextRecord .		
-		  DSSelectInspectorPageRecord .
-		  DSBrowseContextRecord .
-		  DSPlaygroundReadRecord
-		} includes: e class ]
+	^ self events select: [ :e |
+		  self debuggingActionsClasses includes: e class ]
 ]
 
 { #category : '*DebuggingSessionAnalysis' }
