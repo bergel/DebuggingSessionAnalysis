@@ -47,6 +47,11 @@ DSA >> fromFileName: aFilename [
 ]
 
 { #category : 'accessing' }
+DSA >> history [ 	
+	^history
+]
+
+{ #category : 'accessing' }
 DSA >> historyWindows [
 	"NEED TO BUILD A VISUALIZATION FOR THIS!!!!!"
 	^ (DSRecordHistory on: self events) buildWindowHistory
