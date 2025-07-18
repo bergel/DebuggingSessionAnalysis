@@ -246,10 +246,10 @@ DSA >> visualizeHistory [
 		c addShape: compound.
 		compounds add: compound.
 		hi := RSHighlightable new withOutgoingLines.
-		compound addInteraction: (RSPopup themeText: historyWin printString) ;
+		"compound addInteraction: (RSPopup themeText: historyWin printString) ;
 			when: RSMouseClick
 			do: [ :evt | historyWin inspect ]
-			for: self. "addInteraction: historyWin ;"
+			for: self." "addInteraction: historyWin ;"
 		compound @ RSDraggable "@ RSPopup" ].
 
 	RSLineBuilder arrowedLine
