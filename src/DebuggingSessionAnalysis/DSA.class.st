@@ -187,10 +187,11 @@ DSA >> visualizeHistory [
 
 	| windowSequence historyByWindowDict previousWindow historyByWindow c compound compounds jumps hi allWindowJumps allLeavesShapes highlightable popup lbl |
 	allWindowJumps := self historyWindows filteredWindowJumps.
-	
+
 	"HISTORY BY WINDOW"
-	historyByWindow := DSAHistoryWindow fromAssociations: 
-								(allWindowJumps groupedBy: #windowId) associations.
+	historyByWindow := DSAHistoryWindow fromAssociations:
+		                   (allWindowJumps groupedBy: #windowId)
+			                   associations.
 	historyByWindowDict := Dictionary new.
 	historyByWindow do: [ :hw |
 		historyByWindowDict at: hw windowId put: hw ].
@@ -200,12 +201,10 @@ DSA >> visualizeHistory [
 	previousWindow := nil.
 	windowSequence := allWindowJumps collect: #windowId.
 	windowSequence do: [ :w |
-		previousWindow ifNotNil: [
-			"(historyByWindowDict at: w) previousWindowHistory: (historyByWindowDict at: previousWindow)."
-			(historyByWindowDict at: previousWindow) addNextHistoryWindow: (historyByWindowDict at: w)
-		].
-		previousWindow := w 
-	].
+		previousWindow ifNotNil: [ "(historyByWindowDict at: w) previousWindowHistory: (historyByWindowDict at: previousWindow)."
+			(historyByWindowDict at: previousWindow) addNextHistoryWindow:
+				(historyByWindowDict at: w) ].
+		previousWindow := w ].
 
 
 	"MAIN RENDERING"
@@ -214,8 +213,11 @@ DSA >> visualizeHistory [
 	historyByWindow do: [ :historyWin |
 		compound := RSComposite new.
 		jumps := RSBox models: historyWin jumps.
-		jumps do: [ :j | j size: ((j model duration asSeconds sqrt * 3) max: 5) ].
-		jumps do: [ :j | j model hasDebuggingOperations ifTrue: [ j borderColor: Color black ] ].
+		jumps do: [ :j |
+			j size: (j model duration asSeconds sqrt * 3 max: 5) ].
+		jumps do: [ :j |
+			j model hasDebuggingOperations ifTrue: [
+				j borderColor: Color black ] ].
 		RSFlowLayout on: jumps.
 		"jumps @ (RSHighlightable new highlightColor: Color red; highlightShapes: [ :aShape | 
 						| t |
@@ -229,23 +231,26 @@ DSA >> visualizeHistory [
 			aJump visualizeSummarizedDebuggingActionsOnGroup: g.
 			RSLocation move: lbl above: g.
 			g add: lbl.
-			
+
 			g asShape
 				color: Color white;
 				borderColor: #black;
-				padding: 3
-		].
+				padding: 3 ].
 		"jumps @ popup."
 		compound shapes: jumps.
 		compound color: historyWin color.
 		compound model: historyWin.
 		compound padding: 10.
 		"compound := RSBox new color: historyWin color; model: historyWin."
-		
+
 		c addShape: compound.
 		compounds add: compound.
 		hi := RSHighlightable new withOutgoingLines.
-		compound "@ RSPopup" @ RSDraggable ].
+		compound addInteraction: (RSPopup themeText: historyWin printString) ;
+			when: RSMouseClick
+			do: [ :evt | historyWin inspect ]
+			for: self. "addInteraction: historyWin ;"
+		compound @ RSDraggable "@ RSPopup" ].
 
 	RSLineBuilder arrowedLine
 		canvas: c;
@@ -257,19 +262,22 @@ DSA >> visualizeHistory [
 	"HIGHLIGHT NEXT JUMP"
 	allLeavesShapes := compounds flatCollect: #children.
 	highlightable := RSHighlightable new.
-	highlightable highlightColor: Color red. 
-	highlightable highlightShapes: [ :aShape | 
-		allLeavesShapes select: [ :s | aShape model next  == s model ] ].
+	highlightable highlightColor: Color red.
+	highlightable highlightShapes: [ :aShape |
+		allLeavesShapes select: [ :s | aShape model next == s model ] ].
 	allLeavesShapes @ highlightable.
-	
+
 	highlightable := RSHighlightable new.
-	highlightable highlightColor: Color orange. 
-	highlightable highlightShapes: [ :aShape | 
-		allLeavesShapes select: [ :s | aShape model previous  == s model ] ].
+	highlightable highlightColor: Color orange.
+	highlightable highlightShapes: [ :aShape |
+		allLeavesShapes select: [ :s | aShape model previous == s model ] ].
 	allLeavesShapes @ highlightable.
 
 	"LAYOUT"
-	RSForceBasedLayout new charge: -2000; on: compounds.
+"	RSForceBasedLayout new
+		charge: -2000;
+		on: compounds."
+		RSFlowLayout new gapSize: 50; applyOn: compounds.
 	^ c @ RSCanvasController
 ]
 
