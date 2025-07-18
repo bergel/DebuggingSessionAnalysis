@@ -1,1 +1,1 @@
-Package { #name : #BaselineOfDebuggingSessionAnalysis }
+Package { #name : 'BaselineOfDebuggingSessionAnalysis' }
